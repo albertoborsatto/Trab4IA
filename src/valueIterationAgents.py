@@ -1,17 +1,3 @@
-# valueIterationAgents.py
-# -----------------------
-# Licensing Information:  You are free to use or extend these projects for
-# educational purposes provided that (1) you do not distribute or publish
-# solutions, (2) you retain this notice, and (3) you provide clear
-# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
-# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
-# The core projects and autograders were primarily created by John DeNero
-# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
-# Student side autograding was added by Brad Miller, Nick Hay, and
-# Pieter Abbeel (pabbeel@cs.berkeley.edu).
-
-
 import mdp, util
 from learningAgents import ValueEstimationAgent
 
@@ -44,7 +30,12 @@ class ValueIterationAgent(ValueEstimationAgent):
 
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
-
+        for i in range(self.iterations):
+            valores = util.Counter()
+            for estado in self.mdp.getStates():
+                if not self.mdp.isTerminal(estado):
+                    valores[estado] = self.computeQValueFromValues(estado, self.computeActionFromValues(estado))
+            self.values=valores
 
     def getValue(self, state):
         """
@@ -58,7 +49,10 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        val_total = 0
+        for estado, probabilidade in self.mdp.getTransitionStatesAndProbs(state, action):
+            val_total +=(self.mdp.getReward(state, action, estado)+self.discount*self.values[estado])*probabilidade
+        return val_total
 
     def computeActionFromValues(self, state):
         """
@@ -70,7 +64,14 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        if self.mdp.isTerminal(state):
+            return None
+        else:
+            lista=[]
+            for acao in self.mdp.getPossibleActions(state):
+                lista.append(self.getQValue(state, acao))
+            return self.mdp.getPossibleActions(state)[lista.index(max(lista))]
+
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
@@ -81,3 +82,4 @@ class ValueIterationAgent(ValueEstimationAgent):
 
     def getQValue(self, state, action):
         return self.computeQValueFromValues(state, action)
+    
